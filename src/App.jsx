@@ -1,4 +1,4 @@
-import emailjs from "@emailjs/browser";
+import Cube from "./components/Cube";
 import CinematicSection from "./components/CinematicSection";
 import MagneticButton from "./components/MagneticButton";
 import CursorGlow from "./components/CursorGlow";
@@ -11,42 +11,50 @@ import Hero from "./components/Hero";
 import ParticleBackground from "./components/ParticleBackground";
 
 export default function App() {
-
   const [form, setForm] = useState({
     name: "",
     email: "",
     message: "",
   });
 
+  const [active, setActive] = useState("home");
+  const [scrollProgress, setScrollProgress] = useState(0);
+
   const handleSend = async () => {
     try {
-      await emailjs.send(
-        "service_8s160q8",
-        "template_86mty1o",
+      const res = await fetch(
+        "https://harsh-portfolio-2-je0z.onrender.com/send",
         {
-          name: form.name,
-          email: form.email,
-          message: form.message,
-        },
-        "Q0QjBnmEsB6XHfZyl"
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: form.name,
+            email: form.email,
+            message: form.message,
+          }),
+        }
       );
 
-      alert("Message sent successfully!");
+      const data = await res.json();
 
-      setForm({
-        name: "",
-        email: "",
-        message: "",
-      });
+      if (data.success) {
+        alert("Message sent successfully!");
 
+        setForm({
+          name: "",
+          email: "",
+          message: "",
+        });
+      } else {
+        alert(data.error || "Failed to send message");
+      }
     } catch (error) {
       console.log(error);
       alert("Error sending message");
     }
   };
-
-  const [active, setActive] = useState("home");
-  const [scrollProgress, setScrollProgress] = useState(0);
 
   // Scroll Spy
   useEffect(() => {
@@ -100,6 +108,11 @@ export default function App() {
       <ParticleBackground />
       <Navbar active={active} />
       <Hero />
+
+      {/* 🧊 CUBE (FIXED TOP SECTION) */}
+      <div style={{ display: "flex", justifyContent: "center", marginTop: "50px" }}>
+        <Cube />
+      </div>
 
       {/* ABOUT */}
       <CinematicSection id="about">
@@ -280,12 +293,12 @@ export default function App() {
               }
             />
 
-            <MagneticButton
+            <button
               onClick={handleSend}
-              className="mt-6 px-8 py-3 bg-gradient-to-r from-cyan-400 to-purple-500 text-black font-bold rounded-xl"
+              className="mt-6 px-8 py-3 bg-gradient-to-r from-cyan-400 to-purple-500 text-black font-bold rounded-xl hover:scale-105 transition duration-300 cursor-pointer"
             >
               Send
-            </MagneticButton>
+            </button>
           </div>
         </PageSection>
       </Reveal>

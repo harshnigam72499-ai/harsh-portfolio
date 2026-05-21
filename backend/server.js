@@ -22,13 +22,11 @@ app.post("/send", async (req, res) => {
   const { email, message } = req.body;
 
   if (!email || !message) {
-    console.log("❌ Missing fields");
     return res.status(400).json({ error: "Missing fields" });
   }
 
   try {
     const transporter = nodemailer.createTransport({
-      service: "gmail",
       host: "smtp.gmail.com",
       port: 587,
       secure: false,
@@ -40,15 +38,13 @@ app.post("/send", async (req, res) => {
 
     console.log("📧 Sending email...");
 
-    const mailOptions = {
+    await transporter.sendMail({
       from: process.env.EMAIL,
-      replyTo: email,
       to: process.env.EMAIL,
+      replyTo: email,
       subject: "New Portfolio Message",
       text: `From: ${email}\n\nMessage:\n${message}`,
-    };
-
-    await transporter.sendMail(mailOptions);
+    });
 
     console.log("✅ Email sent successfully");
 
@@ -59,7 +55,11 @@ app.post("/send", async (req, res) => {
 
   } catch (error) {
     console.error("❌ EMAIL ERROR:", error);
-    res.status(500).json({ error: "Email sending failed" });
+
+    res.status(500).json({
+      success: false,
+      error: "Email sending failed",
+    });
   }
 });
 

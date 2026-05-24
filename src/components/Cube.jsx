@@ -12,6 +12,3 @@ export default function Cube() {
  </div>
   );
 }
-
-
-// Premium cube upgraded styling placeholder

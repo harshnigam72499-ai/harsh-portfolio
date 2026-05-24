@@ -1,94 +1,142 @@
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { useState, useRef } from "react";
 
+export default function Navbar({ active }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const btnRef = useRef(null);
+  
 const links = [
   { id: "home", label: "Home" },
   { id: "about", label: "About" },
   { id: "skills", label: "Skills" },
   { id: "projects", label: "Projects" },
   { id: "contact", label: "Contact" },
+  { id: "admin", label: "Admin" },
 ];
 
-export default function Navbar({ active }) {
-  const [open, setOpen] = useState(false);
+  // 🧲 Magnetic effect
+  const handleMouseMove = (e) => {
+    const btn = btnRef.current;
+    if (!btn) return;
 
-  const scrollToSection = (id) => {
-    const element = document.getElementById(id);
+    const rect = btn.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
 
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    btn.style.transform = `translate(${x * 0.25}px, ${y * 0.25}px)`;
+  };
 
-    setOpen(false);
+  const handleMouseLeave = () => {
+    const btn = btnRef.current;
+    if (!btn) return;
+
+    btn.style.transform = "translate(0px, 0px)";
   };
 
   return (
-    <header className="fixed top-0 z-50 w-full px-4 pt-4 sm:px-6 lg:px-10">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between rounded-3xl border border-white/10 bg-black/40 px-5 py-4 shadow-2xl shadow-cyan-500/5 backdrop-blur-2xl">
-        <button
-          onClick={() => scrollToSection("home")}
-          className="text-lg font-semibold tracking-wide"
-        >
-          Harsh<span className="text-cyan-300">.dev</span>
-        </button>
+    <nav className="fixed top-0 left-0 w-full z-50">
 
-        <div className="hidden items-center gap-8 md:flex">
-          {links.map((link) => (
-            <button
-              key={link.id}
-              onClick={() => scrollToSection(link.id)}
-              className={`relative text-sm transition duration-300 ${
-                active === link.id
-                  ? "text-cyan-300"
-                  : "text-gray-300 hover:text-white"
-              }`}
-            >
-              {link.label}
+      {/* Glass Navbar */}
+      <div className="backdrop-blur-2xl bg-black/40 border-b border-white/10 px-6 md:px-12 py-4 flex items-center justify-between shadow-[0_0_20px_rgba(0,255,255,0.05)]">
 
-              {active === link.id && (
-                <span className="absolute -bottom-2 left-1/2 h-[2px] w-6 -translate-x-1/2 rounded-full bg-cyan-300" />
-              )}
-            </button>
-          ))}
+        {/* Logo */}
+        <h1 className="text-xl font-bold tracking-widest text-white">
+          HARSH<span className="text-cyan-400">.dev</span>
+        </h1>
 
+        {/* Desktop Menu */}
+        <div className="hidden md:flex items-center gap-8">
+
+          {links.map((link) => {
+            const isActive = active === link.id;
+
+            return (
+              <a
+                key={link.id}
+href={link.id === "admin" ? "/admin" : `#${link.id}`}                
+                className="relative text-sm uppercase tracking-widest transition duration-300"
+              >
+                {/* Text */}
+                <span
+                  className={`transition duration-300 ${
+                    isActive
+                      ? "text-cyan-400"
+                      : "text-gray-300 hover:text-cyan-300"
+                  }`}
+                >
+                  {link.label}
+                </span>
+
+                {/* Animated underline */}
+                <span
+                  className={`absolute left-0 -bottom-1 h-[2px] bg-gradient-to-r from-cyan-400 to-purple-500 transition-all duration-300 ${
+                    isActive ? "w-full" : "w-0"
+                  }`}
+                />
+
+                {/* Glow dot */}
+                {isActive && (
+                  <span className="absolute -top-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-cyan-400 rounded-full shadow-[0_0_10px_cyan]" />
+                )}
+              </a>
+            );
+          })}
+
+          {/* 🧲 Magnetic Resume Button */}
           <a
+            ref={btnRef}
             href="/resume.pdf"
             download
-            className="rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-medium transition duration-300 hover:border-cyan-400/40 hover:bg-cyan-400/10"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            className="ml-4 px-4 py-2 text-sm uppercase tracking-widest rounded-xl bg-gradient-to-r from-cyan-400 to-purple-500 text-black font-semibold shadow-lg transition-transform duration-150"
           >
             Resume
           </a>
+
         </div>
 
+        {/* Mobile Button */}
         <button
-          className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 md:hidden"
-          onClick={() => setOpen(!open)}
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="md:hidden text-white text-2xl"
         >
-          {open ? <X size={18} /> : <Menu size={18} />}
+          ☰
         </button>
-      </nav>
+      </div>
 
-      {open && (
-        <div className="mx-auto mt-3 flex max-w-7xl flex-col gap-3 rounded-3xl border border-white/10 bg-[#0a1020]/95 p-5 shadow-2xl backdrop-blur-2xl md:hidden">
-          {links.map((link) => (
-            <button
-              key={link.id}
-              onClick={() => scrollToSection(link.id)}
-              className="rounded-2xl border border-white/5 bg-white/[0.03] py-3 text-center text-sm text-gray-300 transition hover:border-cyan-400/30 hover:bg-cyan-400/10"
-            >
-              {link.label}
-            </button>
-          ))}
+      {/* Mobile Menu */}
+      {menuOpen && (
+        <div className="md:hidden bg-black/80 backdrop-blur-xl border-b border-white/10 px-6 py-4 flex flex-col gap-4">
 
+          {links.map((link) => {
+            const isActive = active === link.id;
+
+            return (
+              <a
+                key={link.id}
+href={link.id === "admin" ? "/admin" : `#${link.id}`}                
+                onClick={() => setMenuOpen(false)}
+                className={`text-sm uppercase tracking-widest transition ${
+                  isActive ? "text-cyan-400" : "text-gray-300"
+                }`}
+              >
+                {link.label}
+              </a>
+            );
+          })}
+
+          {/* Mobile Resume Button */}
           <a
             href="/resume.pdf"
             download
-            className="rounded-2xl border border-white/10 bg-white/5 py-3 text-center text-sm font-medium"
+            onClick={() => setMenuOpen(false)}
+            className="mt-2 text-center text-sm uppercase tracking-widest text-cyan-400 border border-cyan-400/40 rounded-lg px-3 py-2 hover:bg-cyan-400/10 transition"
           >
             Download Resume
           </a>
+
         </div>
       )}
-    </header>
+    </nav>
   );
 }

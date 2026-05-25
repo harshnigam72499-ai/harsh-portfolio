@@ -8,18 +8,43 @@ import CursorGlow from "./components/CursorGlow";
 import PageSection from "./components/PageSection";
 import TiltCard from "./components/TiltCard";
 import Reveal from "./components/Reveal";
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import ParticleBackground from "./components/ParticleBackground";
+import { FaEnvelope, FaInstagram, FaYoutube } from "react-icons/fa";
 
 const BACKEND_URL = "https://harsh-portfolio-4.onrender.com";
+const socialLinks = [
+  {
+    label: "YouTube",
+    value: "@TAGxyzBLADE",
+    href: "https://www.youtube.com/@TAGxyzBLADE",
+    icon: FaYoutube,
+    color: "text-red-300 border-red-400/30 hover:border-red-300 hover:bg-red-400/10",
+  },
+  {
+    label: "Instagram",
+    value: "harsh_nigam._",
+    href: "https://www.instagram.com/harsh_nigam._/",
+    icon: FaInstagram,
+    color: "text-pink-300 border-pink-400/30 hover:border-pink-300 hover:bg-pink-400/10",
+  },
+  {
+    label: "Gmail",
+    value: "harshnigam72499@gmail.com",
+    href: "mailto:harshnigam72499@gmail.com",
+    icon: FaEnvelope,
+    color: "text-cyan-300 border-cyan-400/30 hover:border-cyan-300 hover:bg-cyan-400/10",
+  },
+];
 
 function Portfolio() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [status, setStatus] = useState("");
   const [active, setActive] = useState("home");
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const progressRef = useRef(null);
+  const scrollFrameRef = useRef(null);
 
   const handleSend = async () => {
     if (!form.name || !form.email || !form.message) {
@@ -41,7 +66,7 @@ function Portfolio() {
       } else {
         setStatus("error");
       }
-    } catch (error) {
+    } catch {
       setStatus("error");
     }
   };
@@ -62,13 +87,24 @@ function Portfolio() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      if (docHeight <= 0) return;
-      setScrollProgress((scrollTop / docHeight) * 100);
+      if (scrollFrameRef.current) return;
+
+      scrollFrameRef.current = requestAnimationFrame(() => {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        if (progressRef.current) {
+          progressRef.current.style.transform = `scaleX(${progress / 100})`;
+        }
+        scrollFrameRef.current = null;
+      });
     };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (scrollFrameRef.current) cancelAnimationFrame(scrollFrameRef.current);
+    };
   }, []);
 
   return (
@@ -76,8 +112,9 @@ function Portfolio() {
       <CursorGlow />
       <div className="fixed top-0 left-0 w-full h-[3px] z-[999] bg-transparent">
         <div
-          className="h-full bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 transition-all duration-100"
-          style={{ width: `${scrollProgress}%` }}
+          ref={progressRef}
+          className="h-full origin-left bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 transform-gpu"
+          style={{ transform: "scaleX(0)" }}
         />
       </div>
       <ParticleBackground />
@@ -109,7 +146,21 @@ function Portfolio() {
                 <h3 className="text-pink-400 text-xl font-bold mb-2">🚀 Currently Learning</h3>
                 <p className="text-gray-300">Linux, Java, PostgreSQL, System Design Basics</p>
               </div>
-              <p className="text-gray-300">📧 Email: harshnigam72499@gmail.com</p>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {socialLinks.map(({ label, value, href, icon: Icon, color }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target={href.startsWith("http") ? "_blank" : undefined}
+                    rel={href.startsWith("http") ? "noreferrer" : undefined}
+                    className={`rounded-xl border bg-black/20 p-4 transition duration-200 hover:-translate-y-1 ${color}`}
+                  >
+                    <Icon className="mb-3 text-2xl" />
+                    <span className="block text-sm font-bold text-white">{label}</span>
+                    <span className="mt-1 block break-words text-xs text-gray-300">{value}</span>
+                  </a>
+                ))}
+              </div>
               <p className="text-gray-300 leading-8">
                 I am looking for an opportunity as a{" "}
                 <span className="text-cyan-400 font-semibold">Full Stack Developer</span>{" "}
@@ -170,6 +221,20 @@ function Portfolio() {
         <PageSection id="contact" className="min-h-screen flex items-center justify-center px-6">
           <div className="text-center max-w-xl w-full">
             <h2 className="text-5xl font-bold text-cyan-400 mb-6">Contact</h2>
+            <div className="mb-8 grid gap-3 sm:grid-cols-3">
+              {socialLinks.map(({ label, href, icon: Icon, color }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target={href.startsWith("http") ? "_blank" : undefined}
+                  rel={href.startsWith("http") ? "noreferrer" : undefined}
+                  className={`flex h-12 items-center justify-center gap-2 rounded-xl border bg-white/5 text-sm font-semibold transition duration-200 hover:-translate-y-1 ${color}`}
+                >
+                  <Icon />
+                  {label}
+                </a>
+              ))}
+            </div>
             <input
               className="w-full mb-4 p-3 rounded-xl bg-black/40 border border-white/10 text-white"
               placeholder="Your Name"

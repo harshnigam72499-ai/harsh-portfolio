@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 
-export default function CinematicSection({ id, children }) {
+export default function CinematicSection({ id, children, className = "" }) {
   return (
     <motion.section
       id={id}
@@ -8,7 +8,7 @@ export default function CinematicSection({ id, children }) {
       whileInView={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
       viewport={{ once: false, amount: 0.25 }}
-      className="min-h-screen flex items-center justify-center px-6"
+      className={`min-h-screen flex items-center justify-center px-6 ${className}`}
     >
       <div className="w-full">
         {children}

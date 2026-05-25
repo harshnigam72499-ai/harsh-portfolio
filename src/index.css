@@ -13,6 +13,7 @@ body {
   font-family: sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 /* 🧊 3D CUBE START */
 
@@ -29,6 +30,7 @@ body {
   position: relative;
   transform-style: preserve-3d;
   animation: rotate 8s linear infinite;
+  will-change: transform;
 }
 
 .face {
@@ -44,6 +46,7 @@ body {
   background: linear-gradient(135deg, #00f5ff, #6a00ff);
   border: 2px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+  backface-visibility: hidden;
 }
 
 /* sides */
@@ -57,6 +60,21 @@ body {
 @keyframes rotate {
   from { transform: rotateX(0deg) rotateY(0deg); }
   to   { transform: rotateX(360deg) rotateY(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* 🧊 3D CUBE END */

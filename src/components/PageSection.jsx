@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 
-export default function PageSection({ id, children }) {
+export default function PageSection({ id, children, className = "" }) {
   return (
     <motion.section
       id={id}
@@ -8,7 +8,7 @@ export default function PageSection({ id, children }) {
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, ease: "easeOut" }}
       viewport={{ once: false, amount: 0.3 }}
-      className="min-h-screen flex items-center justify-center px-6"
+      className={`min-h-screen flex items-center justify-center px-6 ${className}`}
     >
       {children}
     </motion.section>
